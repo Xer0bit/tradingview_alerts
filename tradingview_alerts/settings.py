@@ -70,13 +70,13 @@ CORS_ALLOWED_ORIGINS = [
 
 ROOT_URLCONF = "tradingview_alerts.urls"
 
-PUBLIC_IP = get_public_ip()
-PORT = get_available_port()
+PUBLIC_IP = '139.59.121.41'
+PORT = 80
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    PUBLIC_IP,
+    '139.59.121.41',
 ]
 
 ASGI_APPLICATION = 'tradingview_alerts.asgi.application'

@@ -1,7 +1,6 @@
 import requests
 import json
 import logging
-from utils.ip_config import get_available_port
 import time
 
 # Configure logging
@@ -13,8 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def test_webhook():
-    port = get_available_port()
-    base_url = f"http://localhost:{port}"
+    base_url = "http://139.59.121.41:80"
     webhook_url = f"{base_url}/alerts/webhook/"
     
     headers = {
