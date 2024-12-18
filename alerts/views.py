@@ -16,10 +16,15 @@ logger = logging.getLogger(__name__)
 def tradingview_webhook(request):
     if request.method == 'POST':
         try:
-            # Read the raw body as text
-            alert_text = request.body.decode('utf-8')
+            # Try to parse as JSON first
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+                alert_text = json.dumps(data)
+            except json.JSONDecodeError:
+                # If not JSON, treat as plain text
+                alert_text = request.body.decode('utf-8')
             
-            # Save the raw text
+            # Save the alert
             alert = TradingViewAlert.objects.create(
                 text_data=alert_text
             )
