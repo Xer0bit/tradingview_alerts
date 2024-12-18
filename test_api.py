@@ -16,31 +16,23 @@ def test_webhook():
     webhook_url = f"{base_url}/alerts/webhook/"
     
     headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Content-Type': 'text/plain',
+        'Accept': 'text/plain',
+        'Host': '139.59.121.41',
+        'Origin': 'http://139.59.121.41',
+        'Referer': 'http://139.59.121.41'
     }
 
     test_cases = [
-        {
-            "strategy": {
-                "position_size": 100,
-                "order_action": "buy",
-                "order_contracts": 1,
-                "order_price": 50000,
-                "order_id": "test_1",
-                "market_position": "long",
-                "market_position_size": 1,
-                "prev_market_position": "flat",
-                "prev_market_position_size": 0
-            }
-        }
+        "Alert message: BUY BTCUSD @ 50000",
+        "Alert message: SELL ETHUSD @ 2500",
     ]
     
     # Test each payload
-    for i, payload in enumerate(test_cases, 1):
+    for i, message in enumerate(test_cases, 1):
         try:
-            logger.info(f"\nTest Case {i} - Sending payload: {json.dumps(payload, indent=2)}")
-            response = requests.post(webhook_url, json=payload, headers=headers)
+            logger.info(f"\nTest Case {i} - Sending message: {message}")
+            response = requests.post(webhook_url, data=message, headers=headers)
             
             logger.info("\nResponse Details:")
             logger.info(f"Status Code: {response.status_code}")

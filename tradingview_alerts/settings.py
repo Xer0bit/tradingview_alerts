@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-xi%c46-0%(ze=)llp&wk@rtz%au$wu6ql#f$xwazdazptknaob
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Set to True for better error handling
 
-ALLOWED_HOSTS = ['*']  # For testing only, restrict in production
+ALLOWED_HOSTS = ['*']  # Allow all hosts
 
 CORS_ALLOW_ALL_ORIGINS = True  # Be careful with this in production
 
@@ -73,11 +73,6 @@ ROOT_URLCONF = "tradingview_alerts.urls"
 PUBLIC_IP = '139.59.121.41'
 PORT = 80
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '139.59.121.41',
-]
 
 ASGI_APPLICATION = 'tradingview_alerts.asgi.application'
 
@@ -193,6 +188,7 @@ LOGOUT_REDIRECT_URL = '/alerts/login/'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Session settings
-SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# Set this as a constant for use throughout the application
+SERVER_HOST = '139.59.121.41'
+SERVER_PORT = 80
+BASE_URL = f'http://{SERVER_HOST}:{SERVER_PORT}'

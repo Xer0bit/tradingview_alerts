@@ -1,8 +1,8 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
-from .models import TradingAlert
+from .models import TradingViewAlert
 import json
 import logging
 from utils.security import generate_access_token, encrypt_payload
@@ -13,72 +13,38 @@ from django.contrib import messages
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
-@require_http_methods(["POST"])
 def tradingview_webhook(request):
-    try:
-        data = json.loads(request.body)
-        strategy = data.get('strategy', {})
-        
-        # Create new alert
-        alert = TradingAlert.objects.create(
-            position_size=strategy.get('position_size', 0),
-            order_action=strategy.get('order_action', ''),
-            order_contracts=strategy.get('order_contracts', 0),
-            order_price=strategy.get('order_price', 0),
-            order_id=strategy.get('order_id', ''),
-            market_position=strategy.get('market_position', ''),
-            market_position_size=strategy.get('market_position_size', 0),
-            prev_market_position=strategy.get('prev_market_position', ''),
-            prev_market_position_size=strategy.get('prev_market_position_size', 0)
-        )
-        
-        return JsonResponse({
-            'status': 'success',
-            'message': 'Alert received',
-            'order_id': alert.order_id
-        })
-        
-    except json.JSONDecodeError:
-        logger.error("Invalid JSON data received")
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Invalid JSON format'
-        }, status=400)
-    except Exception as e:
-        logger.error(f"Error processing webhook: {str(e)}")
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=500)
+    if request.method == 'POST':
+        try:
+            # Read the raw body as text
+            alert_text = request.body.decode('utf-8')
+            
+            # Save the raw text
+            alert = TradingViewAlert.objects.create(
+                text_data=alert_text
+            )
+            
+            return HttpResponse("Alert received successfully", status=200)
+            
+        except Exception as e:
+            logger.error(f"Error processing alert: {str(e)}")
+            return HttpResponse("Error processing alert", status=500)
+    
+    return HttpResponse("Method not allowed", status=405)
 
-@require_http_methods(["GET"])
 def get_latest_alert(request):
     try:
-        latest_alert = TradingAlert.objects.first()
-        if (latest_alert):
+        latest_alert = TradingViewAlert.objects.first()
+        if latest_alert:
             return JsonResponse({
-                'status': 'success',
-                'data': {
-                    'position_size': latest_alert.position_size,
-                    'order_action': latest_alert.order_action,
-                    'order_contracts': latest_alert.order_contracts,
-                    'order_price': latest_alert.order_price,
-                    'order_id': latest_alert.order_id,
-                    'market_position': latest_alert.market_position,
-                    'market_position_size': latest_alert.market_position_size,
-                    'timestamp': latest_alert.timestamp.isoformat()
-                }
+                'id': latest_alert.id,
+                'text': latest_alert.text_data,
+                'received_at': latest_alert.received_at.isoformat()
             })
-        return JsonResponse({
-            'status': 'success',
-            'data': None
-        })
+        return JsonResponse({'message': 'No alerts found'})
     except Exception as e:
         logger.error(f"Error fetching latest alert: {str(e)}")
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 def is_admin(user):
     return user.is_staff

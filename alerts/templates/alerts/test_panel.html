@@ -55,6 +55,12 @@
             background: #e8f5e9;
             border-radius: 4px;
         }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -62,35 +68,8 @@
         <h1>Trading Alert Test Panel</h1>
         <form id="alertForm">
             <div class="form-group">
-                <label>Position Size:</label>
-                <input type="number" id="position_size" value="100">
-            </div>
-            <div class="form-group">
-                <label>Order Action:</label>
-                <select id="order_action" style="width: 100%; padding: 8px;">
-                    <option value="buy">Buy</option>
-                    <option value="sell">Sell</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Order Contracts:</label>
-                <input type="number" id="order_contracts" value="1">
-            </div>
-            <div class="form-group">
-                <label>Order Price:</label>
-                <input type="number" id="order_price" value="50000">
-            </div>
-            <div class="form-group">
-                <label>Order ID:</label>
-                <input type="text" id="order_id" value="test_1">
-            </div>
-            <div class="form-group">
-                <label>Market Position:</label>
-                <select id="market_position" style="width: 100%; padding: 8px;">
-                    <option value="long">Long</option>
-                    <option value="short">Short</option>
-                    <option value="flat">Flat</option>
-                </select>
+                <label>Alert Message:</label>
+                <textarea id="alert_message">Enter your alert message here</textarea>
             </div>
             <button type="button" onclick="sendAlert()">Send Test Alert</button>
         </form>
@@ -107,32 +86,22 @@
     </div>
 
     <script>
+        const BASE_URL = 'http://139.59.121.41:80';
+        
         function sendAlert() {
-            const payload = {
-                strategy: {
-                    position_size: parseFloat(document.getElementById('position_size').value),
-                    order_action: document.getElementById('order_action').value,
-                    order_contracts: parseFloat(document.getElementById('order_contracts').value),
-                    order_price: parseFloat(document.getElementById('order_price').value),
-                    order_id: document.getElementById('order_id').value,
-                    market_position: document.getElementById('market_position').value,
-                    market_position_size: parseFloat(document.getElementById('order_contracts').value),
-                    prev_market_position: "flat",
-                    prev_market_position_size: 0
-                }
-            };
+            const message = document.getElementById('alert_message').value;
 
-            fetch('/alerts/webhook/', {
+            fetch(`${BASE_URL}/alerts/webhook/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'text/plain',
+                    'Host': '139.59.121.41'
                 },
-                body: JSON.stringify(payload)
+                body: message
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
-                // Fetch latest alert after sending
+                document.getElementById('response').textContent = data;
                 fetchLatestAlert();
             })
             .catch(error => {
@@ -141,7 +110,11 @@
         }
 
         function fetchLatestAlert() {
-            fetch('/alerts/latest/')
+            fetch(`${BASE_URL}/alerts/latest/`, {
+                headers: {
+                    'Host': '139.59.121.41'
+                }
+            })
             .then(response => response.json())
             .then(data => {
                 document.getElementById('latestAlert').textContent = JSON.stringify(data, null, 2);
