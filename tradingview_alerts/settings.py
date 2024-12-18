@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from utils.ip_config import get_public_ip, get_available_port
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-xi%c46-0%(ze=)llp&wk@rtz%au$wu6ql#f$xwazdazptknaob"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False  # Set to False for production
+DEBUG = True  # Set to True for better error handling
 
-ALLOWED_HOSTS = ['*']  # Be careful with this in production
+ALLOWED_HOSTS = ['*']  # For testing only, restrict in production
 
 CORS_ALLOW_ALL_ORIGINS = True  # Be careful with this in production
 
@@ -40,9 +45,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "channels",
-    "alerts",
     "rest_framework",  
     'corsheaders',
+    'alerts.apps.AlertsConfig',  # Keep only this one alerts entry
 ]
 
 MIDDLEWARE = [
@@ -53,7 +58,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-     'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'alerts.middleware.TokenAuthMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
@@ -88,7 +94,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        "APP_DIRS": True,
+        "APP_DIRS": True,  # This enables app-level template directories
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -107,9 +113,16 @@ WSGI_APPLICATION = "tradingview_alerts.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'defaultdb',
+        'USER': 'doadmin',
+        'PASSWORD': 'AVNS_4ORixo9xFN1yb3qFFng',
+        'HOST': 'db-postgresql-nyc3-34563-do-user-10608781-0.l.db.ondigitalocean.com',
+        'PORT': '25060',
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
 }
 
@@ -160,17 +173,26 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
-    'loggers': {
-        'alerts': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
     },
 }
+
+# Login settings
+LOGIN_URL = '/alerts/login/'
+LOGIN_REDIRECT_URL = '/alerts/'
+LOGOUT_REDIRECT_URL = '/alerts/login/'
+
+
+# Session settings
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Session settings
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

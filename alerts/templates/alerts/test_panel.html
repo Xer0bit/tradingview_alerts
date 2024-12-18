@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alert Test Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .response-container {
+            margin-top: 20px;
+        }
+        .latest-alert {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trading Alert Test Panel</h1>
+        <form id="alertForm">
+            <div class="form-group">
+                <label>Position Size:</label>
+                <input type="number" id="position_size" value="100">
+            </div>
+            <div class="form-group">
+                <label>Order Action:</label>
+                <select id="order_action" style="width: 100%; padding: 8px;">
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Order Contracts:</label>
+                <input type="number" id="order_contracts" value="1">
+            </div>
+            <div class="form-group">
+                <label>Order Price:</label>
+                <input type="number" id="order_price" value="50000">
+            </div>
+            <div class="form-group">
+                <label>Order ID:</label>
+                <input type="text" id="order_id" value="test_1">
+            </div>
+            <div class="form-group">
+                <label>Market Position:</label>
+                <select id="market_position" style="width: 100%; padding: 8px;">
+                    <option value="long">Long</option>
+                    <option value="short">Short</option>
+                    <option value="flat">Flat</option>
+                </select>
+            </div>
+            <button type="button" onclick="sendAlert()">Send Test Alert</button>
+        </form>
+        
+        <div class="response-container">
+            <h3>Response:</h3>
+            <div id="response"></div>
+        </div>
+        
+        <div class="latest-alert">
+            <h3>Latest Alert:</h3>
+            <div id="latestAlert"></div>
+        </div>
+    </div>
+
+    <script>
+        function sendAlert() {
+            const payload = {
+                strategy: {
+                    position_size: parseFloat(document.getElementById('position_size').value),
+                    order_action: document.getElementById('order_action').value,
+                    order_contracts: parseFloat(document.getElementById('order_contracts').value),
+                    order_price: parseFloat(document.getElementById('order_price').value),
+                    order_id: document.getElementById('order_id').value,
+                    market_position: document.getElementById('market_position').value,
+                    market_position_size: parseFloat(document.getElementById('order_contracts').value),
+                    prev_market_position: "flat",
+                    prev_market_position_size: 0
+                }
+            };
+
+            fetch('/alerts/webhook/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+                // Fetch latest alert after sending
+                fetchLatestAlert();
+            })
+            .catch(error => {
+                document.getElementById('response').textContent = 'Error: ' + error.message;
+            });
+        }
+
+        function fetchLatestAlert() {
+            fetch('/alerts/latest/')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('latestAlert').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('latestAlert').textContent = 'Error fetching latest alert: ' + error.message;
+            });
+        }
+
+        // Fetch latest alert on page load
+        fetchLatestAlert();
+    </script>
+</body>
+</html>

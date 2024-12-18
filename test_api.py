@@ -1,7 +1,8 @@
 import requests
 import json
 import logging
-from utils.ip_config import get_public_ip, get_available_port
+from utils.ip_config import get_available_port
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -12,14 +13,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def test_webhook():
-    # Get the same IP and port as the server uses
-    ip = get_public_ip()
     port = get_available_port()
+    base_url = f"http://localhost:{port}"
+    webhook_url = f"{base_url}/alerts/webhook/"
     
-    base_url = f"http:///192.168.1.54:8000"
-    webhook_url = f"{base_url}/alerts/webhook/"  # Updated URL path
-    
-    # Example test payloads
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+
     test_cases = [
         {
             "strategy": {
@@ -27,24 +29,11 @@ def test_webhook():
                 "order_action": "buy",
                 "order_contracts": 1,
                 "order_price": 50000,
-                "order_id": "test_order_1",
+                "order_id": "test_1",
                 "market_position": "long",
                 "market_position_size": 1,
                 "prev_market_position": "flat",
                 "prev_market_position_size": 0
-            }
-        },
-        {
-            "strategy": {
-                "position_size": 100,
-                "order_action": "sell",
-                "order_contracts": 1,
-                "order_price": 51000,
-                "order_id": "test_order_2",
-                "market_position": "flat",
-                "market_position_size": 0,
-                "prev_market_position": "long",
-                "prev_market_position_size": 1
             }
         }
     ]
@@ -52,15 +41,29 @@ def test_webhook():
     # Test each payload
     for i, payload in enumerate(test_cases, 1):
         try:
-            response = requests.post(webhook_url, json=payload)
-            logger.info(f"\nTest Case {i}:")
+            logger.info(f"\nTest Case {i} - Sending payload: {json.dumps(payload, indent=2)}")
+            response = requests.post(webhook_url, json=payload, headers=headers)
+            
+            logger.info("\nResponse Details:")
             logger.info(f"Status Code: {response.status_code}")
-            logger.info(f"Response: {response.text}")
-            logger.info("-" * 50)
+            logger.info(f"Response Headers: {dict(response.headers)}")
+            logger.info(f"Response Body: {response.text}")
+            
+            # Test getting latest alert
+            time.sleep(1)  # Wait for alert to be processed
+            latest_alert_response = requests.get(f"{base_url}/alerts/latest/")
+            logger.info("\nLatest Alert Response:")
+            logger.info(f"Status Code: {latest_alert_response.status_code}")
+            logger.info(f"Response Body: {latest_alert_response.text}")
+            
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error in Test Case {i}: {str(e)}")
+            logger.error(f"Network Error: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+        finally:
+            logger.info("-" * 50)
 
 if __name__ == "__main__":
-    logger.info("Starting webhook tests")
+    logger.info("Starting webhook tests...")
     test_webhook()
     logger.info("Completed webhook tests")

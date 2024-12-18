@@ -14,3 +14,18 @@ class TradingViewAlert(models.Model):
     
     def __str__(self):
         return f"Alert {self.id} - {self.received_at}"
+
+class TradingAlert(models.Model):
+    position_size = models.FloatField()
+    order_action = models.CharField(max_length=10)
+    order_contracts = models.FloatField()
+    order_price = models.FloatField()
+    order_id = models.CharField(max_length=100)
+    market_position = models.CharField(max_length=10)
+    market_position_size = models.FloatField()
+    prev_market_position = models.CharField(max_length=10)
+    prev_market_position_size = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
