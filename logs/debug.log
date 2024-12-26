@@ -1,0 +1,50 @@
+INFO 2024-12-26 21:24:30,028 autoreload 1288 17744 Watching for file changes with StatReloader
+ERROR 2024-12-26 21:24:31,727 exception 1288 16508 Invalid HTTP_HOST header: '127.0.0.1'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\utils\deprecation.py", line 133, in __call__
+    response = self.process_request(request)
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\middleware\security.py", line 28, in process_request
+    host = self.redirect_host or request.get_host()
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\http\request.py", line 150, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '127.0.0.1'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
+WARNING 2024-12-26 21:24:31,731 log 1288 16508 Bad Request: /
+WARNING 2024-12-26 21:24:31,731 basehttp 1288 16508 "GET / HTTP/1.1" 400 143
+INFO 2024-12-26 21:26:45,189 autoreload 1288 17744 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 21:26:46,073 autoreload 9612 23880 Watching for file changes with StatReloader
+INFO 2024-12-26 21:26:48,748 autoreload 9612 23880 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 21:26:49,622 autoreload 17188 7748 Watching for file changes with StatReloader
+INFO 2024-12-26 21:26:53,408 autoreload 17188 7748 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 21:26:54,412 autoreload 27616 27824 Watching for file changes with StatReloader
+INFO 2024-12-26 21:26:57,170 autoreload 27616 27824 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 21:26:58,197 autoreload 27492 22244 Watching for file changes with StatReloader
+INFO 2024-12-26 21:27:03,192 autoreload 27492 22244 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 21:27:03,864 autoreload 15916 26996 Watching for file changes with StatReloader
+INFO 2024-12-26 22:27:05,719 autoreload 8456 19316 Watching for file changes with StatReloader
+WARNING 2024-12-26 22:27:35,395 log 8456 1848 Not Found: /
+WARNING 2024-12-26 22:27:35,396 basehttp 8456 1848 "GET / HTTP/1.1" 404 2685
+WARNING 2024-12-26 22:27:35,485 log 8456 1848 Not Found: /favicon.ico
+WARNING 2024-12-26 22:27:35,485 basehttp 8456 1848 "GET /favicon.ico HTTP/1.1" 404 2736
+INFO 2024-12-26 22:27:57,107 autoreload 11804 20572 Watching for file changes with StatReloader
+WARNING 2024-12-26 22:28:03,134 log 11804 7648 Not Found: /
+WARNING 2024-12-26 22:28:03,134 basehttp 11804 7648 "GET / HTTP/1.1" 404 2680
+WARNING 2024-12-26 22:28:03,191 log 11804 7648 Not Found: /favicon.ico
+WARNING 2024-12-26 22:28:03,192 basehttp 11804 7648 "GET /favicon.ico HTTP/1.1" 404 2731
+INFO 2024-12-26 22:28:26,759 basehttp 11804 27664 "GET /alerts/latest HTTP/1.1" 301 0
+ERROR 2024-12-26 22:28:26,768 views 11804 10456 Error fetching latest alerts: settings.DATABASES is improperly configured. Please supply the ENGINE value. Check settings documentation for more details.
+ERROR 2024-12-26 22:28:26,768 log 11804 10456 Internal Server Error: /alerts/latest/
+ERROR 2024-12-26 22:28:26,769 basehttp 11804 10456 "GET /alerts/latest/ HTTP/1.1" 500 15
+INFO 2024-12-26 22:28:39,390 basehttp 11804 10456 "GET /alerts/webhook HTTP/1.1" 301 0
+WARNING 2024-12-26 22:28:39,393 log 11804 16132 Method Not Allowed: /alerts/webhook/
+WARNING 2024-12-26 22:28:39,393 basehttp 11804 16132 "GET /alerts/webhook/ HTTP/1.1" 405 18
+INFO 2024-12-26 22:29:07,934 basehttp 11804 16132 "GET /alerts/webhook HTTP/1.1" 301 0
+WARNING 2024-12-26 22:29:07,938 log 11804 1412 Method Not Allowed: /alerts/webhook/
+WARNING 2024-12-26 22:29:07,938 basehttp 11804 1412 "GET /alerts/webhook/ HTTP/1.1" 405 18
+INFO 2024-12-26 22:29:26,184 basehttp 11804 7648 "GET /alerts HTTP/1.1" 301 0
+INFO 2024-12-26 22:29:26,252 basehttp 11804 3364 "GET /alerts/ HTTP/1.1" 200 7353
+INFO 2024-12-26 22:29:41,986 autoreload 9976 18420 Watching for file changes with StatReloader
+INFO 2024-12-26 22:30:05,787 autoreload 9976 18420 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 22:30:06,627 autoreload 15944 26740 Watching for file changes with StatReloader
+INFO 2024-12-26 22:30:08,419 autoreload 15944 26740 C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.

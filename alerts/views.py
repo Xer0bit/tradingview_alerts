@@ -110,37 +110,44 @@ def tradingview_webhook(request):
 
 def get_latest_alert(request):
     try:
+        # Get last 5 alerts instead of just one
         latest_alerts = TradingViewAlert.objects.all()[:5]
         alerts_data = []
         
-        for index, alert in enumerate(latest_alerts, 1):
+        for alert in latest_alerts:
             try:
-                # Parse stored data
-                stored_data = json.loads(alert.text_data)
-                if not isinstance(stored_data, dict) or 'symbol' not in stored_data:
+                # First try to parse as JSON
+                try:
+                    stored_data = json.loads(alert.text_data)
+                except json.JSONDecodeError:
+                    # If not valid JSON, parse as alert text
                     stored_data = json.loads(parse_alert_text(alert.text_data))
-
-                # Create clean signal object with just the necessary data
-                signal = {
-                    'id': index,
-                    'timestamp': alert.received_at.strftime('%Y-%m-%d %H:%M:%S'),
-                    'symbol': stored_data.get('symbol'),
-                    'direction': stored_data.get('direction'),
-                    'entry': stored_data.get('entry'),
-                    'stopLoss': stored_data.get('stopLoss'),
-                    'takeProfits': stored_data.get('takeProfits', {}),
-                    'riskPips': stored_data.get('riskPips')
-                }
-                alerts_data.append(signal)
+                
+                alerts_data.append({
+                    'timestamp': alert.received_at.isoformat(),
+                    'data': stored_data
+                })
             except Exception as e:
-                logger.error(f"Error parsing alert {index}: {str(e)}")
-                continue
+                # If all parsing fails, include raw text
+                alerts_data.append({
+                    'timestamp': alert.received_at.isoformat(),
+                    'data': {
+                        'error': 'Failed to parse alert',
+                        'raw_text': alert.text_data
+                    }
+                })
         
-        return JsonResponse({'signals': alerts_data})
+        return JsonResponse({
+            'alerts': alerts_data,
+            'count': len(alerts_data)
+        })
         
     except Exception as e:
         logger.error(f"Error fetching latest alerts: {str(e)}")
-        return JsonResponse({'signals': []}, status=500)
+        return JsonResponse({
+            'error': str(e),
+            'alerts': []
+        }, status=500)
 
 def is_admin(user):
     return user.is_staff
