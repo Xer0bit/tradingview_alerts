@@ -2,7 +2,7 @@ import requests
 import socket
 
 def get_public_ip():
-    hostname = '139.59.121.41'
+    hostname = '0.0.0.0'
     return hostname
 
 def get_available_port(start_port=80):

@@ -64,6 +64,55 @@
         .button-group {
             margin: 10px 0;
         }
+        .alert-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .alert-timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .alert-data {
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .signal-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .signal-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .signal-timestamp {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .signal-details {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .direction-long {
+            color: #4CAF50;
+        }
+        .direction-short {
+            color: #f44336;
+        }
     </style>
 </head>
 <body>
@@ -72,10 +121,7 @@
         <form id="alertForm">
             <div class="form-group">
                 <label>Alert Message:</label>
-                <textarea id="alert_message">{
-    "message": "BUY BTCUSD @ 50000",
-    "timestamp": "2024-12-18T11:02:31"
-}</textarea>
+                <textarea id="alert_message">XAUUSD-LONG|ENTRY:2626.39|SL:2573.86|TP1:2678.92|TP2:2731.45|TP3:2783.98|TP4:2836.5|TP5:2889.03</textarea>
             </div>
             <div class="button-group">
                 <button type="button" onclick="sendAlert('text')">Send as Text</button>
@@ -89,18 +135,18 @@
         </div>
         
         <div class="latest-alert">
-            <h3>Latest Alert:</h3>
-            <div id="latestAlert"></div>
+            <h3>Latest Alerts</h3>
+            <div id="latestAlerts"></div>
         </div>
     </div>
 
     <script>
-        const BASE_URL = 'http://139.59.121.41:80';
+        const BASE_URL = 'http://localhost:8000';
         
         function sendAlert(type) {
             const message = document.getElementById('alert_message').value;
             const headers = {
-                'Host': '139.59.121.41'
+                'Host': 'localhost:8000'
             };
 
             if (type === 'json') {
@@ -127,19 +173,57 @@
         function fetchLatestAlert() {
             fetch(`${BASE_URL}/alerts/latest/`, {
                 headers: {
-                    'Host': '139.59.121.41'
+                    'Host': 'localhost:8000'
                 }
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('latestAlert').textContent = JSON.stringify(data, null, 2);
+                const alertsDiv = document.getElementById('latestAlerts');
+                alertsDiv.innerHTML = ''; // Clear existing alerts
+
+                if (data.signals && data.signals.length > 0) {
+                    data.signals.forEach(signal => {
+                        const signalCard = document.createElement('div');
+                        signalCard.className = 'signal-card';
+                        
+                        const header = document.createElement('div');
+                        header.className = 'signal-header';
+                        header.innerHTML = `
+                            <span class="signal-id">Signal #${signal.id}</span>
+                            <span class="signal-timestamp">${signal.timestamp}</span>
+                        `;
+                        
+                        const details = document.createElement('div');
+                        details.className = 'signal-details';
+                        const directionClass = signal.direction.toLowerCase() === 'long' ? 'direction-long' : 'direction-short';
+                        
+                        details.innerHTML = `
+                            Symbol: ${signal.symbol}
+                            Direction: <span class="${directionClass}">${signal.direction}</span>
+                            Entry: ${signal.entry}
+                            Stop Loss: ${signal.stopLoss}
+                            Risk (pips): ${signal.riskPips}
+                            
+                            Take Profits:
+                            ${Object.entries(signal.takeProfits)
+                                .map(([tp, price]) => `${tp}: ${price}`)
+                                .join('\n')}
+                        `;
+                        
+                        signalCard.appendChild(header);
+                        signalCard.appendChild(details);
+                        alertsDiv.appendChild(signalCard);
+                    });
+                } else {
+                    alertsDiv.textContent = 'No signals found';
+                }
             })
             .catch(error => {
-                document.getElementById('latestAlert').textContent = 'Error fetching latest alert: ' + error.message;
+                document.getElementById('latestAlerts').textContent = 'Error fetching signals: ' + error.message;
             });
         }
 
-        // Fetch latest alert on page load
+        // Fetch latest alerts on page load
         fetchLatestAlert();
     </script>
 </body>

@@ -12,6 +12,76 @@ from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
+def parse_alert_text(text):
+    """Parse TradingView alert text into structured JSON format"""
+    try:
+        # Check if text is empty or invalid
+        if not text or '|' not in text or '-' not in text.split('|')[0]:
+            return json.dumps({
+                "error": "Invalid alert format",
+                "raw_text": text
+            })
+
+        # Split by pipe character
+        parts = text.split('|')
+        
+        # Parse symbol and direction from first part
+        try:
+            symbol_direction = parts[0].split('-')
+            symbol = symbol_direction[0]
+            direction = symbol_direction[1]
+        except IndexError:
+            return json.dumps({
+                "error": "Invalid symbol-direction format",
+                "raw_text": text
+            })
+        
+        # Initialize data dictionary with a cleaner structure
+        data = {
+            "symbol": symbol,
+            "direction": direction,
+            "entry": None,
+            "stopLoss": None,
+            "takeProfits": {},
+            "raw_text": text  # Store original text for reference
+        }
+        
+        # Parse remaining parts
+        for part in parts[1:]:
+            try:
+                key, value = part.split(':')
+                price = float(value)
+                
+                # Map to specific fields
+                if key == 'ENTRY':
+                    data['entry'] = price
+                elif key == 'SL':
+                    data['stopLoss'] = price
+                elif key.startswith('TP'):
+                    data['takeProfits'][key] = price
+            except (ValueError, IndexError):
+                continue  # Skip invalid parts
+        
+        # Sort take profits by TP number
+        data['takeProfits'] = dict(sorted(data['takeProfits'].items()))
+        
+        # Calculate risk and rewards only if we have valid entry and stop loss
+        if data['entry'] is not None and data['stopLoss'] is not None:
+            data['riskPips'] = abs(data['entry'] - data['stopLoss'])
+            data['rewards'] = {
+                tp: abs(price - data['entry']) / data['riskPips']
+                for tp, price in data['takeProfits'].items()
+            }
+        
+        return json.dumps(data, indent=2)
+        
+    except Exception as e:
+        logger.error(f"Error parsing alert text: {str(e)}")
+        return json.dumps({
+            "error": "Failed to parse alert",
+            "raw_text": text
+        })
+
 @csrf_exempt
 def tradingview_webhook(request):
     if request.method == 'POST':
@@ -21,8 +91,9 @@ def tradingview_webhook(request):
                 data = json.loads(request.body.decode('utf-8'))
                 alert_text = json.dumps(data)
             except json.JSONDecodeError:
-                # If not JSON, treat as plain text
-                alert_text = request.body.decode('utf-8')
+                # If not JSON, try to parse the format
+                raw_text = request.body.decode('utf-8')
+                alert_text = parse_alert_text(raw_text)
             
             # Save the alert
             alert = TradingViewAlert.objects.create(
@@ -39,17 +110,37 @@ def tradingview_webhook(request):
 
 def get_latest_alert(request):
     try:
-        latest_alert = TradingViewAlert.objects.first()
-        if latest_alert:
-            return JsonResponse({
-                'id': latest_alert.id,
-                'text': latest_alert.text_data,
-                'received_at': latest_alert.received_at.isoformat()
-            })
-        return JsonResponse({'message': 'No alerts found'})
+        latest_alerts = TradingViewAlert.objects.all()[:5]
+        alerts_data = []
+        
+        for index, alert in enumerate(latest_alerts, 1):
+            try:
+                # Parse stored data
+                stored_data = json.loads(alert.text_data)
+                if not isinstance(stored_data, dict) or 'symbol' not in stored_data:
+                    stored_data = json.loads(parse_alert_text(alert.text_data))
+
+                # Create clean signal object with just the necessary data
+                signal = {
+                    'id': index,
+                    'timestamp': alert.received_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    'symbol': stored_data.get('symbol'),
+                    'direction': stored_data.get('direction'),
+                    'entry': stored_data.get('entry'),
+                    'stopLoss': stored_data.get('stopLoss'),
+                    'takeProfits': stored_data.get('takeProfits', {}),
+                    'riskPips': stored_data.get('riskPips')
+                }
+                alerts_data.append(signal)
+            except Exception as e:
+                logger.error(f"Error parsing alert {index}: {str(e)}")
+                continue
+        
+        return JsonResponse({'signals': alerts_data})
+        
     except Exception as e:
-        logger.error(f"Error fetching latest alert: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.error(f"Error fetching latest alerts: {str(e)}")
+        return JsonResponse({'signals': []}, status=500)
 
 def is_admin(user):
     return user.is_staff

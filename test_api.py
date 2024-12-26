@@ -12,20 +12,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def test_webhook():
-    base_url = "http://139.59.121.41:80"
+    base_url = "http://localhost:8000"
     webhook_url = f"{base_url}/alerts/webhook/"
     
     headers = {
         'Content-Type': 'text/plain',
         'Accept': 'text/plain',
-        'Host': '139.59.121.41',
-        'Origin': 'http://139.59.121.41',
-        'Referer': 'http://139.59.121.41'
+        'Host': 'localhost:8000'
     }
 
     test_cases = [
-        "Alert message: BUY BTCUSD @ 50000",
-        "Alert message: SELL ETHUSD @ 2500",
+        "XAUUSD-LONG|ENTRY:2626.39|SL:2573.86|TP1:2678.92|TP2:2731.45|TP3:2783.98|TP4:2836.5|TP5:2889.03",
+        "EURUSD-SHORT|ENTRY:1.0850|SL:1.0900|TP1:1.0800|TP2:1.0750"
     ]
     
     # Test each payload

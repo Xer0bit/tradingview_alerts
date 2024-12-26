@@ -1,0 +1,18 @@
+INFO 2024-12-26 20:38:09,833 autoreload C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
+INFO 2024-12-26 20:38:10,795 autoreload Watching for file changes with StatReloader
+INFO 2024-12-26 20:39:29,229 autoreload C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\urls.py changed, reloading.
+INFO 2024-12-26 20:39:30,103 autoreload Watching for file changes with StatReloader
+INFO 2024-12-26 20:39:36,435 autoreload Watching for file changes with StatReloader
+ERROR 2024-12-26 20:39:41,483 exception Invalid HTTP_HOST header: 'localhost:8000'. You may need to add 'localhost' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\utils\deprecation.py", line 133, in __call__
+    response = self.process_request(request)
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\middleware\security.py", line 28, in process_request
+    host = self.redirect_host or request.get_host()
+  File "C:\Users\SlimShady\miniconda3\envs\autobot\lib\site-packages\django\http\request.py", line 150, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'localhost:8000'. You may need to add 'localhost' to ALLOWED_HOSTS.
+WARNING 2024-12-26 20:39:41,513 log Bad Request: /alerts/webhook/
+INFO 2024-12-26 20:39:52,164 autoreload C:\Users\SlimShady\Desktop\Auto\backendtesting\tradingview_alerts\tradingview_alerts\settings.py changed, reloading.
