@@ -31,10 +31,13 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key-for-dev')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['139.59.121.41']
 
 # Update CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:8000').split(',')
+CORS_ALLOWED_ORIGINS = [
+    'http://139.59.121.41:80',
+]
+CORS_ALLOW_ALL_ORIGINS = False  # Disable this for security
 CORS_ALLOW_CREDENTIALS = True
 
 # Security settings
@@ -222,6 +225,6 @@ SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Set this as a constant for use throughout the application
-SERVER_HOST = 'localhost'
-SERVER_PORT = 8000
+SERVER_HOST = '139.59.121.41'
+SERVER_PORT = 80
 BASE_URL = f'http://{SERVER_HOST}:{SERVER_PORT}'

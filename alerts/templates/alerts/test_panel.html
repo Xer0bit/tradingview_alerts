@@ -141,12 +141,12 @@
     </div>
 
     <script>
-        const BASE_URL = 'http://localhost:8000';
+        const BASE_URL = 'http://139.59.121.41:80';
         
         function sendAlert(type) {
             const message = document.getElementById('alert_message').value;
             const headers = {
-                'Host': 'localhost:8000'
+                'Host': '139.59.121.41'
             };
 
             if (type === 'json') {
@@ -173,7 +173,7 @@
         function fetchLatestAlert() {
             fetch(`${BASE_URL}/alerts/latest/`, {
                 headers: {
-                    'Host': 'localhost:8000'
+                    'Host': '139.59.121.41'
                 }
             })
             .then(response => response.json())
